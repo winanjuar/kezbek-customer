@@ -8,7 +8,7 @@ import {
   Param,
   Post,
 } from '@nestjs/common';
-import { EventPattern, Payload } from '@nestjs/microservices';
+import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -115,7 +115,7 @@ export class AppController {
   }
 
   @EventPattern('ep_register')
-  async handlerRegister(@Payload() data: any): Promise<void> {
+  async handlerRegister(@Payload() data: any) {
     try {
       const customerDto: CreateCustomerRequestDto = {
         cognito_id: data.id,
@@ -127,11 +127,20 @@ export class AppController {
 
       const newCustomer = await this.appService.createCustomer(customerDto);
       this.logger.log(
-        `[EventPattern Register] Register new customer ${newCustomer.id} successfully`,
+        `[EventPattern ep_register] Register new customer ${newCustomer.id} successfully`,
       );
     } catch (error) {
-      this.logger.log(`[EventPattern Register] ${error}`);
+      this.logger.log(`[EventPattern ep_register] ${error}`);
       throw new InternalServerErrorException(error);
     }
+  }
+
+  @MessagePattern('mp_info_customer')
+  async handleInfoCustomer(@Payload() data: any) {
+    const customer = await this.appService.findCustomerByEmail(data.email);
+    this.logger.log(
+      `[MessagePattern mp_info_customer] Get data customer with email ${data.email} successfully`,
+    );
+    return customer;
   }
 }
