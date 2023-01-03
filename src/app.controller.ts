@@ -137,10 +137,14 @@ export class AppController {
 
   @MessagePattern('mp_info_customer')
   async handleInfoCustomer(@Payload() data: any) {
-    const customer = await this.appService.findCustomerByEmail(data.email);
-    this.logger.log(
-      `[MessagePattern mp_info_customer] Get data customer with email ${data.email} successfully`,
-    );
-    return customer;
+    try {
+      const customer = await this.appService.findCustomerByEmail(data.email);
+      this.logger.log(
+        `[MessagePattern mp_info_customer] Get data customer with email ${data.email} successfully`,
+      );
+      return customer;
+    } catch (error) {
+      throw new InternalServerErrorException('oke');
+    }
   }
 }
