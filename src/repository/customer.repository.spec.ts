@@ -23,6 +23,7 @@ describe('CustomerRepository', () => {
     customerRepository = module.get<CustomerRepository>(CustomerRepository);
     mockCustomer = {
       id: '67746a2b-d693-47e1-99f5-f44572aee307',
+      cognito_id: '04e13954-c0a2-4499-9706-96201b537c4b',
       name: 'Sugeng Winanjuar',
       username: 'winanjuar',
       email: 'winanjuar@gmail.com',
@@ -39,6 +40,7 @@ describe('CustomerRepository', () => {
     it('should return new customer', async () => {
       // arrange
       const customerDto = pick(mockCustomer, [
+        'cognito_id',
         'name',
         'username',
         'email',
@@ -56,12 +58,13 @@ describe('CustomerRepository', () => {
 
       // assert
       expect(newCustomer).toEqual(mockCustomer);
+      expect(newCustomer.id).toBeDefined();
       expect(spySave).toBeCalled();
       expect(spySave).toHaveBeenCalledWith(customerDto);
     });
   });
 
-  describe('findOneById', () => {
+  describe('findOneByCustomerId', () => {
     it('should return found customer', async () => {
       // arrange
       const id = mockCustomer.id;
@@ -71,12 +74,31 @@ describe('CustomerRepository', () => {
         .mockResolvedValue(mockCustomer);
 
       // act
-      const foundCustomer = await customerRepository.findOneByIdCustomer(id);
+      const foundCustomer = await customerRepository.findOneByCustomerId(id);
 
       // assert
       expect(foundCustomer).toEqual(mockCustomer);
-      expect(spyFindOne).toBeCalledTimes(1);
+      expect(spyFindOne).toHaveBeenCalledTimes(1);
       expect(spyFindOne).toHaveBeenCalledWith({ where: { id } });
+    });
+  });
+
+  describe('findOneByCognitoId', () => {
+    it('should return found customer', async () => {
+      // arrange
+      const id = mockCustomer.cognito_id;
+
+      const spyFindOne = jest
+        .spyOn(customerRepository, 'findOne')
+        .mockResolvedValue(mockCustomer);
+
+      // act
+      const foundCustomer = await customerRepository.findOneByCognitoId(id);
+
+      // assert
+      expect(foundCustomer).toEqual(mockCustomer);
+      expect(spyFindOne).toHaveBeenCalledTimes(1);
+      expect(spyFindOne).toHaveBeenCalledWith({ where: { cognito_id: id } });
     });
   });
 

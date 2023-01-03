@@ -12,6 +12,9 @@ export class Customer {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ type: 'uuid', unique: true })
+  cognito_id: string;
+
   @Column()
   name: string;
 

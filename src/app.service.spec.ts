@@ -15,7 +15,8 @@ describe('AppService', () => {
 
   const mockCustomerRepo = {
     createNewCustomer: jest.fn(() => Promise.resolve(mockCustomer)),
-    findOneByIdCustomer: jest.fn(() => Promise.resolve(mockCustomer)),
+    findOneByCustomerId: jest.fn(() => Promise.resolve(mockCustomer)),
+    findOneByCognitoId: jest.fn(() => Promise.resolve(mockCustomer)),
     findOneByEmail: jest.fn(() => Promise.resolve(mockCustomer)),
   };
 
@@ -30,6 +31,7 @@ describe('AppService', () => {
     appService = module.get<AppService>(AppService);
     mockCustomer = {
       id: '67746a2b-d693-47e1-99f5-f44572aee307',
+      cognito_id: '04e13954-c0a2-4499-9706-96201b537c4b',
       name: 'Sugeng Winanjuar',
       username: 'winanjuar',
       email: 'winanjuar@gmail.com',
@@ -46,6 +48,7 @@ describe('AppService', () => {
     it('should return new customer just created', async () => {
       // arrange
       const customerDto: CreateCustomerRequestDto = pick(mockCustomer, [
+        'cognito_id',
         'name',
         'username',
         'email',
@@ -60,6 +63,7 @@ describe('AppService', () => {
 
       // assert
       expect(customer).toEqual(mockCustomer);
+      expect(customer.id).toBeDefined();
       expect(spyCreateNewCustomer).toHaveBeenCalledTimes(1);
       expect(spyCreateNewCustomer).toHaveBeenCalledWith(customerDto);
     });
@@ -73,7 +77,7 @@ describe('AppService', () => {
       });
       const id = customerDto.id;
       const spyFindOneByIdCustomer = jest
-        .spyOn(mockCustomerRepo, 'findOneByIdCustomer')
+        .spyOn(mockCustomerRepo, 'findOneByCustomerId')
         .mockResolvedValue(mockCustomer);
 
       // act
@@ -89,15 +93,51 @@ describe('AppService', () => {
       // arrange
       const id = '67746a2b-d693-47e1-99f5-f44572aee309';
       const spyFindOneByIdCustomer = jest
-        .spyOn(mockCustomerRepo, 'findOneByIdCustomer')
+        .spyOn(mockCustomerRepo, 'findOneByCustomerId')
         .mockReturnValue(null);
 
       // act
-      const findCustomerById = appService.findCustomerById(id);
+      const funFindCustomerById = appService.findCustomerById(id);
 
       // assert
-      await expect(findCustomerById).rejects.toEqual(
+      await expect(funFindCustomerById).rejects.toEqual(
         new NotFoundException(`Customer with id ${id} doesn't exist`),
+      );
+      expect(spyFindOneByIdCustomer).toHaveBeenCalledTimes(1);
+      expect(spyFindOneByIdCustomer).toHaveBeenCalledWith(id);
+    });
+  });
+
+  describe('findCustomerByCognitoId', () => {
+    it('should return a customer', async () => {
+      // arrange
+      const id = mockCustomer.cognito_id;
+      const spyFindOneByIdCustomer = jest
+        .spyOn(mockCustomerRepo, 'findOneByCognitoId')
+        .mockResolvedValue(mockCustomer);
+
+      // act
+      const customer = await appService.findCustomerByCognitoId(id);
+
+      // assert
+      expect(customer).toEqual(mockCustomer);
+      expect(spyFindOneByIdCustomer).toHaveBeenCalledTimes(1);
+      expect(spyFindOneByIdCustomer).toHaveBeenCalledWith(id);
+    });
+
+    it('should throw not found exception', async () => {
+      // arrange
+      const id = '67746a2b-d693-47e1-99f5-f44572aee309';
+      const spyFindOneByIdCustomer = jest
+        .spyOn(mockCustomerRepo, 'findOneByCognitoId')
+        .mockReturnValue(null);
+
+      // act
+      const funFindCustomerById = appService.findCustomerByCognitoId(id);
+
+      // assert
+      await expect(funFindCustomerById).rejects.toEqual(
+        new NotFoundException(`Customer with cognito id ${id} doesn't exist`),
       );
       expect(spyFindOneByIdCustomer).toHaveBeenCalledTimes(1);
       expect(spyFindOneByIdCustomer).toHaveBeenCalledWith(id);

@@ -14,6 +14,10 @@ export class CustomerDto {
   id: string;
 
   @ApiProperty()
+  @IsUUID(4)
+  cognito_id: string;
+
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   @MinLength(4)

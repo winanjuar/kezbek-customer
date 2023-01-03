@@ -10,13 +10,17 @@ export class CustomerRepository extends Repository<Customer> {
   }
 
   async createNewCustomer(
-    customer: CreateCustomerRequestDto,
+    customerDto: CreateCustomerRequestDto,
   ): Promise<Customer> {
-    return await this.save(customer);
+    return await this.save(customerDto);
   }
 
-  async findOneByIdCustomer(id: string): Promise<Customer> {
+  async findOneByCustomerId(id: string): Promise<Customer> {
     return await this.findOne({ where: { id } });
+  }
+
+  async findOneByCognitoId(id: string): Promise<Customer> {
+    return await this.findOne({ where: { cognito_id: id } });
   }
 
   async findOneByEmail(email: string): Promise<Customer> {

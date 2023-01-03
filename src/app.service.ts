@@ -14,9 +14,19 @@ export class AppService {
   }
 
   async findCustomerById(id: string): Promise<Customer> {
-    const customer = await this.customerRepository.findOneByIdCustomer(id);
+    const customer = await this.customerRepository.findOneByCustomerId(id);
     if (!customer) {
       throw new NotFoundException(`Customer with id ${id} doesn't exist`);
+    }
+    return customer;
+  }
+
+  async findCustomerByCognitoId(id: string): Promise<Customer> {
+    const customer = await this.customerRepository.findOneByCognitoId(id);
+    if (!customer) {
+      throw new NotFoundException(
+        `Customer with cognito id ${id} doesn't exist`,
+      );
     }
     return customer;
   }
