@@ -232,9 +232,11 @@ describe('AppController', () => {
     it('should pass all validation for correct dto', async () => {
       // arrange
       const customerDto: CreateCustomerRequestDto = pick(mockCustomer, [
+        'cognito_id',
         'name',
-        'pic_email',
-        'pic_phone',
+        'username',
+        'email',
+        'phone',
       ]);
 
       // act
@@ -280,7 +282,7 @@ describe('AppController', () => {
     it('should call AppService.createCustomer', async () => {
       // arrange
       const customerDto: CreateCustomerRequestDto = pick(mockCustomer, [
-        'id',
+        'cognito_id',
         'name',
         'username',
         'email',
@@ -301,7 +303,7 @@ describe('AppController', () => {
     it('should throw internal server error when unknown error occured', async () => {
       // arrange
       const customerDto: CreateCustomerRequestDto = pick(mockCustomer, [
-        'id',
+        'cognito_id',
         'name',
         'username',
         'email',
@@ -313,11 +315,52 @@ describe('AppController', () => {
         .mockRejectedValue(new InternalServerErrorException('error'));
 
       // act
-      const handlerRegister = controller.handlerRegister(customerDto);
+      const funHandlerRegister = controller.handlerRegister(customerDto);
 
       // assert
-      await expect(handlerRegister).rejects.toEqual(
-        new InternalServerErrorException('error'),
+      await expect(funHandlerRegister).rejects.toEqual(
+        new InternalServerErrorException('Unknown error'),
+      );
+      expect(spyCreateCustomer).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('handleInfoCustomer', () => {
+    it('should call AppService.createCustomer', async () => {
+      // arrange
+      const data = {
+        email: mockCustomer.email,
+      };
+
+      const spyFindCustomerByEmail = jest
+        .spyOn(mockAppService, 'findCustomerByEmail')
+        .mockResolvedValue(mockCustomer);
+
+      // act
+      const customer = await controller.handleInfoCustomer(data);
+
+      // assert
+      expect(customer).toEqual(mockCustomer);
+      expect(spyFindCustomerByEmail).toHaveBeenCalledTimes(1);
+      expect(spyFindCustomerByEmail).toHaveBeenCalledWith(data.email);
+    });
+
+    it('should throw internal server error when unknown error occured', async () => {
+      // arrange
+      const data = {
+        email: mockCustomer.email,
+      };
+
+      const spyCreateCustomer = jest
+        .spyOn(mockAppService, 'findCustomerByEmail')
+        .mockRejectedValue(new InternalServerErrorException('error'));
+
+      // act
+      const funHandleInfoCustomer = controller.handleInfoCustomer(data);
+
+      // assert
+      await expect(funHandleInfoCustomer).rejects.toEqual(
+        new InternalServerErrorException('Unknown error'),
       );
       expect(spyCreateCustomer).toHaveBeenCalledTimes(1);
     });
