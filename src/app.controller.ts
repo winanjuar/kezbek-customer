@@ -131,7 +131,7 @@ export class AppController {
       );
     } catch (error) {
       this.logger.log(`[EventPattern ep_register] ${error}`);
-      throw new InternalServerErrorException('Unknown error');
+      throw new InternalServerErrorException();
     }
   }
 
@@ -145,7 +145,7 @@ export class AppController {
       return customer;
     } catch (error) {
       this.logger.log(`[MessagePattern mp_info_customer] ${error}`);
-      throw new InternalServerErrorException('Unknown error');
+      throw new InternalServerErrorException();
     }
   }
 }

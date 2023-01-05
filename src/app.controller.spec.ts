@@ -89,14 +89,14 @@ describe('AppController', () => {
 
       const spyCreateCustomer = jest
         .spyOn(mockAppService, 'createCustomer')
-        .mockRejectedValue(new InternalServerErrorException('error'));
+        .mockRejectedValue(new InternalServerErrorException());
 
       // act
       const createCustomer = controller.createCustomer(customerDto);
 
       // assert
       await expect(createCustomer).rejects.toEqual(
-        new InternalServerErrorException('error'),
+        new InternalServerErrorException(),
       );
       expect(spyCreateCustomer).toHaveBeenCalledTimes(1);
       expect(spyCreateCustomer).toHaveBeenCalledWith(customerDto);
@@ -132,14 +132,14 @@ describe('AppController', () => {
       const id = customerDto.id;
       const spyFindCustomerById = jest
         .spyOn(mockAppService, 'findCustomerById')
-        .mockRejectedValue(new InternalServerErrorException('error'));
+        .mockRejectedValue(new InternalServerErrorException());
 
       // act
       const getCustomerById = controller.getCustomerById(customerDto);
 
       // assert
       await expect(getCustomerById).rejects.toEqual(
-        new InternalServerErrorException('error'),
+        new InternalServerErrorException(),
       );
       expect(spyFindCustomerById).toHaveBeenCalledTimes(1);
       expect(spyFindCustomerById).toHaveBeenCalledWith(id);
@@ -173,14 +173,14 @@ describe('AppController', () => {
       const id = mockCustomer.cognito_id;
       const spyFindCustomerById = jest
         .spyOn(mockAppService, 'findCustomerByCognitoId')
-        .mockRejectedValue(new InternalServerErrorException('error'));
+        .mockRejectedValue(new InternalServerErrorException());
 
       // act
       const funGetCustomerById = controller.getCustomerByCognitoId(id);
 
       // assert
       await expect(funGetCustomerById).rejects.toEqual(
-        new InternalServerErrorException('error'),
+        new InternalServerErrorException(),
       );
       expect(spyFindCustomerById).toHaveBeenCalledTimes(1);
       expect(spyFindCustomerById).toHaveBeenCalledWith(id);
@@ -214,14 +214,14 @@ describe('AppController', () => {
       const email = mockCustomer.email;
       const spyFindCustomerByEmail = jest
         .spyOn(mockAppService, 'findCustomerByEmail')
-        .mockRejectedValue(new InternalServerErrorException('error'));
+        .mockRejectedValue(new InternalServerErrorException());
 
       // act
       const getCustomerByEmail = controller.getCustomerByEmail(email);
 
       // assert
       await expect(getCustomerByEmail).rejects.toEqual(
-        new InternalServerErrorException('error'),
+        new InternalServerErrorException(),
       );
       expect(spyFindCustomerByEmail).toHaveBeenCalledTimes(1);
       expect(spyFindCustomerByEmail).toHaveBeenCalledWith(email);
@@ -312,14 +312,14 @@ describe('AppController', () => {
 
       const spyCreateCustomer = jest
         .spyOn(mockAppService, 'createCustomer')
-        .mockRejectedValue(new InternalServerErrorException('error'));
+        .mockRejectedValue(new InternalServerErrorException());
 
       // act
       const funHandlerRegister = controller.handlerRegister(customerDto);
 
       // assert
       await expect(funHandlerRegister).rejects.toEqual(
-        new InternalServerErrorException('Unknown error'),
+        new InternalServerErrorException(),
       );
       expect(spyCreateCustomer).toHaveBeenCalledTimes(1);
     });
@@ -353,14 +353,14 @@ describe('AppController', () => {
 
       const spyCreateCustomer = jest
         .spyOn(mockAppService, 'findCustomerByEmail')
-        .mockRejectedValue(new InternalServerErrorException('error'));
+        .mockRejectedValue(new InternalServerErrorException());
 
       // act
       const funHandleInfoCustomer = controller.handleInfoCustomer(data);
 
       // assert
       await expect(funHandleInfoCustomer).rejects.toEqual(
-        new InternalServerErrorException('Unknown error'),
+        new InternalServerErrorException(),
       );
       expect(spyCreateCustomer).toHaveBeenCalledTimes(1);
     });
