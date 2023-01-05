@@ -20,6 +20,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AppService } from './app.service';
+import { IRequestInfoCustomer } from './core/request-info-customer.interface';
+import { IResponseInfoCustomer } from './core/response-info-customer.interface';
 import { CreateCustomerRequestDto } from './dto/request/create-customer.request.dto';
 import { IdCustomerRequestDto } from './dto/request/id-customer.request.dto';
 import { BadRequestResponseDto } from './dto/response/bad-request.response.dto';
@@ -136,15 +138,23 @@ export class AppController {
   }
 
   @MessagePattern('mp_info_customer')
-  async handleInfoCustomer(@Payload() data: any) {
+  async handleInfoCustomer(
+    @Payload() data: IRequestInfoCustomer,
+  ): Promise<IResponseInfoCustomer> {
     try {
       const email = data.email;
       const transaction_id = data.transaction_id;
-      const customer = await this.appService.findCustomerByEmail(data.email);
+      const customer = await this.appService.findCustomerByEmail(email);
       this.logger.log(
         `[MessagePattern mp_info_customer] [${transaction_id}] Get data customer with email ${email} successfully`,
       );
-      return customer;
+
+      return {
+        id: customer.id,
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone,
+      } as IResponseInfoCustomer;
     } catch (error) {
       this.logger.log(`[MessagePattern mp_info_customer] ${error}`);
       throw new InternalServerErrorException();
