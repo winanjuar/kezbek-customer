@@ -53,7 +53,7 @@ export class AppController {
       );
     } catch (error) {
       this.logger.log(`[POST, /] ${error}`);
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException();
     }
   }
 
@@ -74,7 +74,7 @@ export class AppController {
         customer,
       );
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException();
     }
   }
 
@@ -138,9 +138,11 @@ export class AppController {
   @MessagePattern('mp_info_customer')
   async handleInfoCustomer(@Payload() data: any) {
     try {
+      const email = data.email;
+      const transaction_id = data.transaction_id;
       const customer = await this.appService.findCustomerByEmail(data.email);
       this.logger.log(
-        `[MessagePattern mp_info_customer] Get data customer with email ${data.email} successfully`,
+        `[MessagePattern mp_info_customer] [${transaction_id}] Get data customer with email ${email} successfully`,
       );
       return customer;
     } catch (error) {
