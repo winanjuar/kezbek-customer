@@ -3,14 +3,17 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { pick } from 'lodash';
+import { faker } from '@faker-js/faker';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { IRequestInfoCustomer } from './core/request-info-customer.interface';
 import { CreateCustomerRequestDto } from './dto/request/create-customer.request.dto';
 import { IdCustomerRequestDto } from './dto/request/id-customer.request.dto';
 import { CreateCustomerResponseDto } from './dto/response/create-customer.response.dto';
 import { SingleCustomerResponseDto } from './dto/response/single-customer.response.dto';
 import { Customer } from './entity/customer.entity';
+import { IResponseInfoCustomer } from './core/response-info-customer.interface';
 
 describe('AppController', () => {
   let controller: AppController;
@@ -326,11 +329,18 @@ describe('AppController', () => {
   });
 
   describe('handleInfoCustomer', () => {
-    it('should call AppService.createCustomer', async () => {
-      // arrange
-      const data = {
-        email: mockCustomer.email,
+    it('should call AppService.findCustomerByEmail', async () => {
+      const data: IRequestInfoCustomer = {
+        email: faker.internet.email(),
+        transaction_id: faker.datatype.uuid(),
       };
+      const result: IResponseInfoCustomer = {
+        id: mockCustomer.id,
+        name: mockCustomer.name,
+        email: mockCustomer.email,
+        phone: mockCustomer.phone,
+      };
+      // arrange
 
       const spyFindCustomerByEmail = jest
         .spyOn(mockAppService, 'findCustomerByEmail')
@@ -338,17 +348,17 @@ describe('AppController', () => {
 
       // act
       const customer = await controller.handleInfoCustomer(data);
-
       // assert
-      expect(customer).toEqual(mockCustomer);
+      expect(customer).toEqual(result);
       expect(spyFindCustomerByEmail).toHaveBeenCalledTimes(1);
       expect(spyFindCustomerByEmail).toHaveBeenCalledWith(data.email);
     });
 
     it('should throw internal server error when unknown error occured', async () => {
       // arrange
-      const data = {
-        email: mockCustomer.email,
+      const data: IRequestInfoCustomer = {
+        email: faker.internet.email(),
+        transaction_id: faker.datatype.uuid(),
       };
 
       const spyCreateCustomer = jest

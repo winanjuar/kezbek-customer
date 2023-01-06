@@ -27,12 +27,12 @@ export class Customer {
   @Column()
   phone: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ select: false })
   created_at: string;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ select: false })
   updated_at: string;
 
-  @DeleteDateColumn()
+  @DeleteDateColumn({ select: false })
   deleted_at: string;
 }
