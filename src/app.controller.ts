@@ -26,7 +26,7 @@ import { CreateCustomerRequestDto } from './dto/request/create-customer.request.
 import { IdCustomerRequestDto } from './dto/request/id-customer.request.dto';
 import { BadRequestResponseDto } from './dto/response/bad-request.response.dto';
 import { CreateCustomerResponseDto } from './dto/response/create-customer.response.dto';
-import { InternalServerErrorDto } from './dto/response/internal-server-error.response.dto';
+import { InternalServerErrorResponseDto } from './dto/response/internal-server-error.response.dto';
 import { NotFoundResponseDto } from './dto/response/not-found.response.dto';
 import { SingleCustomerResponseDto } from './dto/response/single-customer.response.dto';
 
@@ -40,7 +40,7 @@ export class AppController {
   @ApiBody({ type: CreateCustomerRequestDto })
   @ApiCreatedResponse({ type: CreateCustomerResponseDto })
   @ApiBadRequestResponse({ type: BadRequestResponseDto })
-  @ApiInternalServerErrorResponse({ type: InternalServerErrorDto })
+  @ApiInternalServerErrorResponse({ type: InternalServerErrorResponseDto })
   @Post()
   async createCustomer(@Body() customerDto: CreateCustomerRequestDto) {
     try {
@@ -62,7 +62,7 @@ export class AppController {
   @ApiOkResponse({ type: SingleCustomerResponseDto })
   @ApiBadRequestResponse({ type: BadRequestResponseDto })
   @ApiNotFoundResponse({ type: NotFoundResponseDto })
-  @ApiInternalServerErrorResponse({ type: InternalServerErrorDto })
+  @ApiInternalServerErrorResponse({ type: InternalServerErrorResponseDto })
   @Get(':id')
   async getCustomerById(@Param() customerDto: IdCustomerRequestDto) {
     try {
@@ -83,7 +83,7 @@ export class AppController {
   @ApiOkResponse({ type: SingleCustomerResponseDto })
   @ApiBadRequestResponse({ type: BadRequestResponseDto })
   @ApiNotFoundResponse({ type: NotFoundResponseDto })
-  @ApiInternalServerErrorResponse({ type: InternalServerErrorDto })
+  @ApiInternalServerErrorResponse({ type: InternalServerErrorResponseDto })
   @ApiParam({ name: 'id', type: 'string' })
   @Get('cognito/:id')
   async getCustomerByCognitoId(@Param('id') id: string) {
@@ -101,7 +101,7 @@ export class AppController {
   @ApiOkResponse({ type: SingleCustomerResponseDto })
   @ApiBadRequestResponse({ type: BadRequestResponseDto })
   @ApiNotFoundResponse({ type: NotFoundResponseDto })
-  @ApiInternalServerErrorResponse({ type: InternalServerErrorDto })
+  @ApiInternalServerErrorResponse({ type: InternalServerErrorResponseDto })
   @ApiParam({ name: 'email', type: 'string' })
   @Get('email/:email')
   async getCustomerByEmail(@Param('email') email: string) {
