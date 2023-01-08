@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -18,6 +19,7 @@ export class Customer {
   @Column()
   name: string;
 
+  @Index()
   @Column()
   username: string;
 
