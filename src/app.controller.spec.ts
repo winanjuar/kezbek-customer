@@ -22,10 +22,10 @@ describe('AppController', () => {
   let mockCreateResponse: CreateCustomerResponseDto;
 
   const mockAppService = {
-    createCustomer: jest.fn(() => Promise.resolve(mockCustomer)),
-    findCustomerById: jest.fn(() => Promise.resolve(mockCustomer)),
-    findCustomerByCognitoId: jest.fn(() => Promise.resolve(mockCustomer)),
-    findCustomerByEmail: jest.fn(() => Promise.resolve(mockCustomer)),
+    createCustomer: jest.fn(),
+    findCustomerById: jest.fn(),
+    findCustomerByCognitoId: jest.fn(),
+    findCustomerByEmail: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -37,12 +37,12 @@ describe('AppController', () => {
     controller = module.get<AppController>(AppController);
 
     mockCustomer = {
-      id: '67746a2b-d693-47e1-99f5-f44572aee307',
-      cognito_id: '04e13954-c0a2-4499-9706-96201b537c4b',
-      name: 'Sugeng Winanjuar',
-      username: 'winanjuar',
-      email: 'winanjuar@gmail.com',
-      phone: '+6285712312332',
+      id: faker.datatype.uuid(),
+      cognito_id: faker.datatype.uuid(),
+      name: faker.name.fullName(),
+      username: faker.internet.userName(faker.name.firstName()),
+      email: faker.internet.email(),
+      phone: faker.phone.number(),
       created_at: '2023-01-01T05:26:21.766Z',
       updated_at: '2023-01-01T05:26:21.766Z',
       deleted_at: null,

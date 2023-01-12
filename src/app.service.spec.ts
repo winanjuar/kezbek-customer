@@ -2,6 +2,7 @@ import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { plainToInstance } from 'class-transformer';
 import { pick } from 'lodash';
+import { faker } from '@faker-js/faker';
 
 import { AppService } from './app.service';
 import { CreateCustomerRequestDto } from './dto/request/create-customer.request.dto';
@@ -14,10 +15,10 @@ describe('AppService', () => {
   let mockCustomer: Customer;
 
   const mockCustomerRepo = {
-    createNewCustomer: jest.fn(() => Promise.resolve(mockCustomer)),
-    findOneByCustomerId: jest.fn(() => Promise.resolve(mockCustomer)),
-    findOneByCognitoId: jest.fn(() => Promise.resolve(mockCustomer)),
-    findOneByEmail: jest.fn(() => Promise.resolve(mockCustomer)),
+    createNewCustomer: jest.fn(),
+    findOneByCustomerId: jest.fn(),
+    findOneByCognitoId: jest.fn(),
+    findOneByEmail: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -30,12 +31,12 @@ describe('AppService', () => {
 
     appService = module.get<AppService>(AppService);
     mockCustomer = {
-      id: '67746a2b-d693-47e1-99f5-f44572aee307',
-      cognito_id: '04e13954-c0a2-4499-9706-96201b537c4b',
-      name: 'Sugeng Winanjuar',
-      username: 'winanjuar',
-      email: 'winanjuar@gmail.com',
-      phone: '+6285712312332',
+      id: faker.datatype.uuid(),
+      cognito_id: faker.datatype.uuid(),
+      name: faker.name.fullName(),
+      username: faker.internet.userName(faker.name.firstName()),
+      email: faker.internet.email(),
+      phone: faker.phone.number(),
       created_at: '2023-01-01T05:26:21.766Z',
       updated_at: '2023-01-01T05:26:21.766Z',
       deleted_at: null,
@@ -127,7 +128,7 @@ describe('AppService', () => {
 
     it('should throw not found exception', async () => {
       // arrange
-      const id = '67746a2b-d693-47e1-99f5-f44572aee309';
+      const id = faker.datatype.uuid();
       const spyFindOneByIdCustomer = jest
         .spyOn(mockCustomerRepo, 'findOneByCognitoId')
         .mockReturnValue(null);
