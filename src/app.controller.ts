@@ -150,7 +150,8 @@ export class AppController {
       );
 
       return {
-        id: customer.id,
+        transaction_id,
+        customer_id: customer.id,
         name: customer.name,
         email: customer.email,
         phone: customer.phone,
