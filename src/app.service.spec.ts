@@ -21,11 +21,20 @@ describe('AppService', () => {
     findOneByEmail: jest.fn(),
   };
 
+  const mockWalletClient = {
+    send: jest.fn(),
+  };
+  const mockLoyaltyClient = {
+    send: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AppService,
         { provide: CustomerRepository, useValue: mockCustomerRepo },
+        { provide: 'WalletService', useValue: mockWalletClient },
+        { provide: 'LoyaltyService', useValue: mockLoyaltyClient },
       ],
     }).compile();
 

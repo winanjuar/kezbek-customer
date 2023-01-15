@@ -30,11 +30,13 @@
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/swagger": "^6.1.4",
     "@nestjs/typeorm": "^9.0.1",
+    "@types/passport-jwt": "^3.0.8",
+    "amazon-cognito-identity-js": "^6.1.2",
     "amqp-connection-manager": "^4.1.10",
     "amqplib": "^0.10.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
-    "jwks-rsa": "^3.0.1",
+    "jwks-rsa": "^3.0.0",
     "lodash": "^4.17.21",
     "mysql2": "^2.3.3",
     "passport": "^0.6.0",
@@ -54,7 +56,6 @@
     "@types/jest": "28.1.8",
     "@types/lodash": "^4.14.191",
     "@types/node": "^16.0.0",
-    "@types/passport-jwt": "^3.0.8",
     "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
@@ -82,11 +83,15 @@
       "^src/(.*)$": "<rootDir>/$1"
     },
     "testRegex": ".*\\.spec\\.ts$",
+    "testPathIgnorePatterns": [
+      "<rootDir>/auth/jwt.guard.mock.ts"
+    ],
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.{!(module),}.(t|j)s"
+      "**/*.{!(module),}.(t|j)s",
+      "!src/auth/jwt.guard.mock.ts"
     ],
     "coverageDirectory": "../coverage",
     "coverageThreshold": {

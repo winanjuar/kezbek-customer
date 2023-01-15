@@ -1,8 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthConfig } from './auth/auth.config';
+import { CognitoStrategy } from './auth/cognito.strategy';
 import { Customer } from './entity/customer.entity';
 import { CustomerRepository } from './repository/customer.repository';
 
@@ -24,8 +27,40 @@ import { CustomerRepository } from './repository/customer.repository';
         synchronize: true,
       }),
     }),
+    ClientsModule.registerAsync([
+      {
+        name: 'LoyaltyService',
+        imports: [ConfigModule],
+        inject: [ConfigService],
+        useFactory: async (configService: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>('RABBITMQ_URL')],
+            queue: configService.get<string>('RABBITMQ_QUEUE_LOYALTY'),
+            queueOptions: { durable: false },
+            prefetchCount: 1,
+          },
+        }),
+      },
+    ]),
+    ClientsModule.registerAsync([
+      {
+        name: 'WalletService',
+        imports: [ConfigModule],
+        inject: [ConfigService],
+        useFactory: async (configService: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>('RABBITMQ_URL')],
+            queue: configService.get<string>('RABBITMQ_QUEUE_WALLET'),
+            queueOptions: { durable: false },
+            prefetchCount: 1,
+          },
+        }),
+      },
+    ]),
   ],
   controllers: [AppController],
-  providers: [AppService, CustomerRepository],
+  providers: [AuthConfig, CognitoStrategy, AppService, CustomerRepository],
 })
 export class AppModule {}

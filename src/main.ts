@@ -66,5 +66,11 @@ async function bootstrap() {
   });
   await app.startAllMicroservices();
   logger.log(`${serviceName} is listening queue from RabbitMQ`);
+  logger.log(
+    `${serviceName} ready to communicate with ServiceWallet via RabbitMQ`,
+  );
+  logger.log(
+    `${serviceName} ready to communicate with ServiceLoyalty via RabbitMQ`,
+  );
 }
 bootstrap();

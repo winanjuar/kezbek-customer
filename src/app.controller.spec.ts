@@ -1,4 +1,8 @@
-import { HttpStatus, InternalServerErrorException } from '@nestjs/common';
+import {
+  HttpStatus,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
@@ -14,18 +18,27 @@ import { CreateCustomerResponseDto } from './dto/response/create-customer.respon
 import { SingleCustomerResponseDto } from './dto/response/single-customer.response.dto';
 import { Customer } from './entity/customer.entity';
 import { IResponseInfoCustomer } from './core/response-info-customer.interface';
+import { WalletBalanceResponseDto } from './dto/response/wallet-balance.response.dto';
+import { IResponseBalanceActual } from './core/response-info-balace-actual.interface';
+import { LoyaltyActualResponseDto } from './dto/response/loyalty-actual.response.dto';
+import { IResponseInfoLoyalty } from './core/response-info-loyalty.interface';
+import { ETierName } from './core/tier-name.enum';
 
 describe('AppController', () => {
   let controller: AppController;
   let mockCustomer: Customer;
   let mockSingleResponse: SingleCustomerResponseDto;
   let mockCreateResponse: CreateCustomerResponseDto;
+  let mockWalletBalanceResponse: WalletBalanceResponseDto;
+  let mockLoyaltyActualResponse: LoyaltyActualResponseDto;
 
   const mockAppService = {
+    infoBalanceWallet: jest.fn(),
+    infoLoyalty: jest.fn(),
     createCustomer: jest.fn(),
-    findCustomerById: jest.fn(),
     findCustomerByCognitoId: jest.fn(),
     findCustomerByEmail: jest.fn(),
+    findCustomerById: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -50,6 +63,115 @@ describe('AppController', () => {
   });
 
   afterEach(() => jest.clearAllMocks());
+
+  describe('getWalletBalance', () => {
+    it('should response wallet balance customer', async () => {
+      // arrange
+      const user = { cognito_id: mockCustomer.cognito_id };
+      const mockWalletBalance: IResponseBalanceActual = {
+        customer_id: mockCustomer.id,
+        current_balance: faker.datatype.number(),
+      };
+
+      const spyInfoBalanceWallet = jest
+        .spyOn(mockAppService, 'infoBalanceWallet')
+        .mockResolvedValue(mockWalletBalance);
+
+      mockWalletBalanceResponse = new WalletBalanceResponseDto(
+        HttpStatus.OK,
+        `Get current balance successfully`,
+        mockWalletBalance,
+      );
+
+      // act
+      const response = await controller.getWalletBalance(user);
+
+      // assert
+      expect(response).toEqual(mockWalletBalanceResponse);
+      expect(spyInfoBalanceWallet).toHaveBeenCalledTimes(1);
+      expect(spyInfoBalanceWallet).toHaveBeenCalledWith(user);
+    });
+
+    it('should throw internal server error when unknown error occured', async () => {
+      // arrange
+      const user = { cognito_id: mockCustomer.cognito_id };
+      const spyInfoBalanceWallet = jest
+        .spyOn(mockAppService, 'infoBalanceWallet')
+        .mockRejectedValue(new InternalServerErrorException());
+
+      // act
+      const funGetWalletBalance = controller.getWalletBalance(user);
+
+      // assert
+      await expect(funGetWalletBalance).rejects.toEqual(
+        new InternalServerErrorException(),
+      );
+      expect(spyInfoBalanceWallet).toHaveBeenCalledTimes(1);
+      expect(spyInfoBalanceWallet).toHaveBeenCalledWith(user);
+    });
+  });
+
+  describe('getInfoLoyalty', () => {
+    it('should response info loyalty customer', async () => {
+      // arrange
+      const user = { cognito_id: mockCustomer.cognito_id };
+      const mockInfoLoyalty: IResponseInfoLoyalty = {
+        customer_id: mockCustomer.id,
+        total_trx: faker.datatype.number(),
+        tier: faker.helpers.arrayElement(Object.values(ETierName)),
+        max_trx: faker.datatype.number(),
+      };
+
+      const spyInfoLoyalty = jest
+        .spyOn(mockAppService, 'infoLoyalty')
+        .mockResolvedValue(mockInfoLoyalty);
+
+      mockLoyaltyActualResponse = new LoyaltyActualResponseDto(
+        HttpStatus.OK,
+        `Get current loyalty successfully`,
+        mockInfoLoyalty,
+      );
+
+      // act
+      const response = await controller.getInfoLoyalty(user);
+
+      // assert
+      expect(response).toEqual(mockLoyaltyActualResponse);
+      expect(spyInfoLoyalty).toHaveBeenCalledTimes(1);
+      expect(spyInfoLoyalty).toHaveBeenCalledWith(user);
+    });
+
+    it('should throw internal server error when unknown error occured', async () => {
+      // arrange
+      const user = { cognito_id: mockCustomer.cognito_id };
+      const spyInfoLoyalty = jest
+        .spyOn(mockAppService, 'infoLoyalty')
+        .mockRejectedValue(new InternalServerErrorException());
+
+      // act
+      const funGetInfoLoyalty = controller.getInfoLoyalty(user);
+
+      // assert
+      await expect(funGetInfoLoyalty).rejects.toEqual(
+        new InternalServerErrorException(),
+      );
+      expect(spyInfoLoyalty).toHaveBeenCalledTimes(1);
+      expect(spyInfoLoyalty).toHaveBeenCalledWith(user);
+    });
+  });
+
+  describe('getMe', () => {
+    it('should return authenticated user id', async () => {
+      // arrange
+      const user = { cognito_id: faker.datatype.uuid() };
+
+      // act
+      const response = controller.getMe(user);
+
+      // assert
+      expect(response).toEqual(user);
+    });
+  });
 
   describe('createCustomer', () => {
     it('should response single response customer', async () => {
@@ -106,49 +228,6 @@ describe('AppController', () => {
     });
   });
 
-  describe('getCustomerById', () => {
-    it('should response single response customer', async () => {
-      // arrange
-      const customerDto: IdCustomerRequestDto = pick(mockCustomer, ['id']);
-      const id = customerDto.id;
-      const spyFindCustomerById = jest
-        .spyOn(mockAppService, 'findCustomerById')
-        .mockResolvedValue(mockCustomer);
-      mockSingleResponse = new SingleCustomerResponseDto(
-        HttpStatus.OK,
-        `Get data customer with ID ${id} successfully`,
-        mockCustomer,
-      );
-
-      // act
-      const response = await controller.getCustomerById(customerDto);
-
-      // assert
-      expect(response).toEqual(mockSingleResponse);
-      expect(spyFindCustomerById).toHaveBeenCalledTimes(1);
-      expect(spyFindCustomerById).toHaveBeenCalledWith(id);
-    });
-
-    it('should throw internal server error when unknown error occured', async () => {
-      // arrange
-      const customerDto: IdCustomerRequestDto = pick(mockCustomer, ['id']);
-      const id = customerDto.id;
-      const spyFindCustomerById = jest
-        .spyOn(mockAppService, 'findCustomerById')
-        .mockRejectedValue(new InternalServerErrorException());
-
-      // act
-      const getCustomerById = controller.getCustomerById(customerDto);
-
-      // assert
-      await expect(getCustomerById).rejects.toEqual(
-        new InternalServerErrorException(),
-      );
-      expect(spyFindCustomerById).toHaveBeenCalledTimes(1);
-      expect(spyFindCustomerById).toHaveBeenCalledWith(id);
-    });
-  });
-
   describe('getCustomerByCognitoId', () => {
     it('should response single response customer', async () => {
       // arrange
@@ -158,7 +237,7 @@ describe('AppController', () => {
         .mockResolvedValue(mockCustomer);
       mockSingleResponse = new SingleCustomerResponseDto(
         HttpStatus.OK,
-        `Get data customer with Cognito ID ${id} successfully`,
+        `Get data customer successfully`,
         mockCustomer,
       );
 
@@ -167,6 +246,22 @@ describe('AppController', () => {
 
       // assert
       expect(response).toEqual(mockSingleResponse);
+      expect(spyFindCustomerById).toHaveBeenCalledTimes(1);
+      expect(spyFindCustomerById).toHaveBeenCalledWith(id);
+    });
+
+    it('should throw not found', async () => {
+      // arrange
+      const id = mockCustomer.cognito_id;
+      const spyFindCustomerById = jest
+        .spyOn(mockAppService, 'findCustomerByCognitoId')
+        .mockRejectedValue(new NotFoundException());
+
+      // act
+      const funGetCustomerById = controller.getCustomerByCognitoId(id);
+
+      // assert
+      await expect(funGetCustomerById).rejects.toEqual(new NotFoundException());
       expect(spyFindCustomerById).toHaveBeenCalledTimes(1);
       expect(spyFindCustomerById).toHaveBeenCalledWith(id);
     });
@@ -199,7 +294,7 @@ describe('AppController', () => {
         .mockResolvedValue(mockCustomer);
       mockSingleResponse = new SingleCustomerResponseDto(
         HttpStatus.OK,
-        `Get data customer with email ${email} successfully`,
+        `Get data customer successfully`,
         mockCustomer,
       );
 
@@ -208,6 +303,22 @@ describe('AppController', () => {
 
       // assert
       expect(response).toEqual(mockSingleResponse);
+      expect(spyFindCustomerByEmail).toHaveBeenCalledTimes(1);
+      expect(spyFindCustomerByEmail).toHaveBeenCalledWith(email);
+    });
+
+    it('should throw not found', async () => {
+      // arrange
+      const email = mockCustomer.email;
+      const spyFindCustomerByEmail = jest
+        .spyOn(mockAppService, 'findCustomerByEmail')
+        .mockRejectedValue(new NotFoundException());
+
+      // act
+      const getCustomerByEmail = controller.getCustomerByEmail(email);
+
+      // assert
+      await expect(getCustomerByEmail).rejects.toEqual(new NotFoundException());
       expect(spyFindCustomerByEmail).toHaveBeenCalledTimes(1);
       expect(spyFindCustomerByEmail).toHaveBeenCalledWith(email);
     });
@@ -228,6 +339,66 @@ describe('AppController', () => {
       );
       expect(spyFindCustomerByEmail).toHaveBeenCalledTimes(1);
       expect(spyFindCustomerByEmail).toHaveBeenCalledWith(email);
+    });
+  });
+
+  describe('getCustomerById', () => {
+    it('should response single response customer', async () => {
+      // arrange
+      const customerDto: IdCustomerRequestDto = pick(mockCustomer, ['id']);
+      const id = customerDto.id;
+      const spyFindCustomerById = jest
+        .spyOn(mockAppService, 'findCustomerById')
+        .mockResolvedValue(mockCustomer);
+      mockSingleResponse = new SingleCustomerResponseDto(
+        HttpStatus.OK,
+        `Get data customer successfully`,
+        mockCustomer,
+      );
+
+      // act
+      const response = await controller.getCustomerById(customerDto);
+
+      // assert
+      expect(response).toEqual(mockSingleResponse);
+      expect(spyFindCustomerById).toHaveBeenCalledTimes(1);
+      expect(spyFindCustomerById).toHaveBeenCalledWith(id);
+    });
+
+    it('should throw not found', async () => {
+      // arrange
+      const customerDto: IdCustomerRequestDto = pick(mockCustomer, ['id']);
+      const id = customerDto.id;
+      const spyFindCustomerById = jest
+        .spyOn(mockAppService, 'findCustomerById')
+        .mockRejectedValue(new NotFoundException());
+
+      // act
+      const getCustomerById = controller.getCustomerById(customerDto);
+
+      // assert
+      await expect(getCustomerById).rejects.toEqual(new NotFoundException());
+      expect(spyFindCustomerById).toHaveBeenCalledTimes(1);
+      expect(spyFindCustomerById).toHaveBeenCalledWith(id);
+    });
+
+    it('should throw internal server error when unknown error occured', async () => {
+      // arrange
+      const customerDto: IdCustomerRequestDto = pick(mockCustomer, ['id']);
+      const id = customerDto.id;
+      const spyFindCustomerById = jest
+        .spyOn(mockAppService, 'findCustomerById')
+        .mockRejectedValue(new InternalServerErrorException());
+
+      // act
+      const getCustomerById = controller.getCustomerById(customerDto);
+
+      // assert
+      await expect(getCustomerById).rejects.toEqual(
+        new InternalServerErrorException(),
+      );
+      expect(spyFindCustomerById).toHaveBeenCalledTimes(1);
+      expect(spyFindCustomerById).toHaveBeenCalledWith(id);
     });
   });
 
@@ -335,7 +506,8 @@ describe('AppController', () => {
         transaction_id: faker.datatype.uuid(),
       };
       const result: IResponseInfoCustomer = {
-        id: mockCustomer.id,
+        transaction_id: data.transaction_id,
+        customer_id: mockCustomer.id,
         name: mockCustomer.name,
         email: mockCustomer.email,
         phone: mockCustomer.phone,
