@@ -155,11 +155,11 @@ export class AppController {
     try {
       const customer = await this.appService.findCustomerByEmail(email);
       this.logger.log(
-        `[${logIdentifier}] [${customer.id}] Get data customer successfully`,
+        `[${logIdentifier}] [${customer.id}] Get data customer by email successfully`,
       );
       return new SingleCustomerResponseDto(
         HttpStatus.OK,
-        `Get data customer successfully`,
+        `Get data customer by email successfully`,
         customer,
       );
     } catch (error) {
@@ -182,11 +182,11 @@ export class AppController {
     try {
       const customer = await this.appService.findCustomerById(customerDto.id);
       this.logger.log(
-        `[${logIdentifier}] [${customer.id}] Get data customer successfully`,
+        `[${logIdentifier}] [${customer.id}] Get data customer by id successfully`,
       );
       return new SingleCustomerResponseDto(
         HttpStatus.OK,
-        `Get data customer successfully`,
+        `Get data customer by id successfully`,
         customer,
       );
     } catch (error) {

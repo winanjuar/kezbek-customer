@@ -294,7 +294,7 @@ describe('AppController', () => {
         .mockResolvedValue(mockCustomer);
       mockSingleResponse = new SingleCustomerResponseDto(
         HttpStatus.OK,
-        `Get data customer successfully`,
+        `Get data customer by email successfully`,
         mockCustomer,
       );
 
@@ -352,7 +352,7 @@ describe('AppController', () => {
         .mockResolvedValue(mockCustomer);
       mockSingleResponse = new SingleCustomerResponseDto(
         HttpStatus.OK,
-        `Get data customer successfully`,
+        `Get data customer by id successfully`,
         mockCustomer,
       );
 
